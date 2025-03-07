@@ -24,8 +24,7 @@ export const runConsumer = async (attempt = 1) => {
     await consumer.run({
       eachMessage: async ({ message }:any) => {
         const msg = JSON.parse(message.value.toString());
-        console.log(msg,'dsfasdfasfasdfasdfasdfasdf as afs ddfs  dadfs df as fsd f df dfas dfs df d ')
-        messageRepository.postMessages({senderId: msg.senderId, content:msg.content})
+        messageRepository.createMessage(msg)
         // io.emit("newMessage", msg);
       },
     });

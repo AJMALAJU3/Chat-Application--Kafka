@@ -1,4 +1,5 @@
-import Chat, { ChatProvider } from "@/pages/Chat";
+import Chat from "@/pages/Chat";
+import { ChatProvider } from "@/pages/ChatProvider";
 import Login from "@/pages/Login";
 import { createBrowserRouter } from "react-router-dom";
 

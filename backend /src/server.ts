@@ -3,7 +3,7 @@ import http from "http"
 import cors from "cors"
 import dotenv from "dotenv"
 import { connectDB } from "./config/db.config"
-import messageRouter from "./routes/MessageRoute"
+import messageRouter from "./routes/messageRoute"
 import { initKafka, runConsumer } from "./utils/kafkaUtil"
 import userRouter from './routes/userRoute'
 import chatRouter from './routes/chatRoute'

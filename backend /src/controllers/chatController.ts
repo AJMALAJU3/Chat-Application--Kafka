@@ -46,7 +46,6 @@ export class ChatController {
 
     async getUserChats(req: Request, res: Response): Promise<void> {
         try {
-            console.log('asdjklfjklasdf kajsdfhlkajsdflkjasdf askjdfnblkajsnbdf a iadsfhlkasdnf ',req.params)
             const userId = new mongoose.Types.ObjectId(req.params.userId);
             const chats = await this.chatRepository.getUserChats(userId);
             res.status(200).json(chats);

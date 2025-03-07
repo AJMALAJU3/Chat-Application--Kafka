@@ -1,33 +1,32 @@
 import { RootState } from "@/store/store";
-import { axiosInstance } from "@/utils/axiosInstance";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-
-const fetchUserChats = async (userId: string) => {
-    console.log(userId)
-    const response = await axiosInstance.get(`/chat/user/${userId}`);
-    console.log(response)
-    if (!response) {
-        throw new Error("Failed to fetch chats");
-    }
-    return response.data;
-};
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useChatContext } from "@/hooks/useChatContext";
 
 const ChatList = () => {
     const userId = useSelector((state: RootState) => state.user?._id);
+      const { chats, selectedChat, selectChat } = useChatContext();
 
-    const { data: chats, isLoading, error } = useQuery({
-        queryKey: ["userChats", userId],
-        queryFn: () => fetchUserChats(userId!),
-        enabled: !!userId,
-    });
+    //   const filteredChats = chats.filter(chat => 
+    //     chat.name.toLowerCase().includes(searchTerm.toLowerCase())
+    //   );
 
-    if (!userId) return <p>Please log in to see your chats.</p>;
-    if (isLoading) return <p>Loading chats...</p>;
-    if (error) return <p>Error loading chats: {error.message}</p>;
 
     return (
+        <>
+        <div className="p-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+          <Input
+            placeholder="Search chats" 
+            className="pl-10"
+            // value={searchTerm}
+            // onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
         <div className="flex-grow overflow-y-auto">
             <h2>Your Chats</h2>
             {chats.length === 0 ? (
@@ -36,9 +35,9 @@ const ChatList = () => {
                 <ul>
                     {chats.map((chat: any) => (
                         <div
-                            key={chat._id}
-                            className={`p-4 flex items-center hover:bg-gray-200 cursor-pointer `}
-                        // onClick={() => selectUser(user)}
+                        key={chat._id}
+                        className={`p-4 flex items-center hover:bg-gray-200 cursor-pointer ${selectedChat?.chatId === chat._id ? 'bg-gray-200' : ''}`}
+                        onClick={() => selectChat(chat._id)}
                         >
                             <Avatar className="mr-4">
                                 <AvatarImage src={chat?.avatar} />
@@ -69,6 +68,7 @@ const ChatList = () => {
                 </ul>
             )}
         </div>
+            </>
     );
 };
 

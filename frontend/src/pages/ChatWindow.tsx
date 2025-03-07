@@ -3,59 +3,59 @@ import { Send, Smile, Paperclip } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useChatContext } from './Chat';
-import axios from 'axios'
 import { axiosInstance } from '@/utils/axiosInstance';
+import { useChatContext } from '@/hooks/useChatContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+
 
 const ChatWindow: React.FC = () => {
-  // const [message, setMessage] = useState('');
-  // const { selectedUser, addMessage } = useChatContext();
+  const [message, setMessage] = useState('');
+  const { selectedChat, addMessage } = useChatContext();
+  const userId = useSelector((state: RootState) => state.user._id)
 
-  // if (!selectedUser) return null;
+  if (!selectedChat) return null;
+  console.log(selectedChat,'selected chat')
 
-  // const sendMessage = async () => {
-  //   if (message.trim()) {
-  //     const newMessage = {
-  //       text: message,
-  //       sender: 'me' as const,
-  //     };
-  //     const response = await axiosInstance.post('/send',{ content: newMessage.text, senderId: '234123412341234' })
-  //     console.log(response)
-  //     addMessage(selectedUser.id, newMessage);
-  //     setMessage('');
-  //   }
-  // };
+  const sendMessage = async () => {
+    if (message.trim()) {
+      const response = await axiosInstance.post('/message/messages',{ content: message, senderId: userId, chatId: selectedChat.chatId })
+      addMessage({ content: message, senderId: userId, chatId: selectedChat.chatId });
+      setMessage('');
+    }
+  };
 
   return (
     <div className="flex-grow flex flex-col h-screen">
-{/* 
+
       <div className="p-4 bg-white flex justify-between items-center border-b">
         <div className="flex items-center">
           <Avatar className="mr-4">
-            <AvatarImage src={selectedUser.avatar} />
-            <AvatarFallback>{selectedUser.name.charAt(0)}</AvatarFallback>
+            {/* <AvatarImage src={selectedChat?.avatar} />
+            <AvatarFallback>{selectedChat?.name?.charAt(0)}</AvatarFallback> */}
           </Avatar>
           <div>
-            <h2 className="font-semibold">{selectedUser.name}</h2>
+            {/* <h2 className="font-semibold">{selectedChat?.name}</h2> */}
             <p className="text-xs text-gray-500">Online</p>
           </div>
         </div>
       </div>
 
       <div className="flex-grow bg-gray-100 p-4 overflow-y-auto">
-        {selectedUser.messages.map(msg => (
+        {selectedChat.messages.map(msg => (
+
           <div 
-            key={msg.id} 
-            className={`flex mb-4 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+            key={msg._id} 
+            className={`flex mb-4 ${msg.senderId === userId ? 'justify-end' : 'justify-start'}`}
           >
             <div 
               className={`p-3 rounded-lg max-w-md ${
-                msg.sender === 'me' 
+                msg.senderId === userId 
                   ? 'bg-green-100 text-right' 
                   : 'bg-white text-left'
               }`}
             >
-              {msg.text}
+              {msg.content}
             </div>
           </div>
         ))}
@@ -78,7 +78,7 @@ const ChatWindow: React.FC = () => {
         >
           <Send />
         </Button>
-      </div> */}
+      </div>
     </div>
   );
 };
