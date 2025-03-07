@@ -4,6 +4,7 @@ import { createContext, ReactNode, useEffect, useState } from "react"
 import { RootState } from "@/store/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "@/utils/axiosInstance";
+import { getSocket, joinChat } from "@/utils/socket";
 
 
 const fetchUserChats = async (userId: string) => {
@@ -39,6 +40,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const selectChat = async (chatId: string) => {
       try {
+        joinChat(chatId)
         const messages = await queryClient.fetchQuery({
           queryKey: ["messages", chatId],
           queryFn: () => fetchMessages(chatId),
@@ -55,6 +57,19 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setChats(data ?? []);
       }
     }, [data]);
+
+    useEffect(() => {
+      const socket = getSocket();
+  
+      // Listen for new messages
+      socket.on("newMessage", (newMessage) => {
+        userId !== newMessage.senderId && addMessage(newMessage)
+      });
+  
+      return () => {
+        socket.off("newMessage");
+      };
+    }, [queryClient]);
   
   
   

@@ -1,6 +1,6 @@
 import { Kafka } from "kafkajs";
-import { Message } from "../models/Message";
 import { MessageRepository } from "../repositories/Message";
+import { getSocketInstance } from "./socket";
 
 const kafka = new Kafka({ clientId: "chat-app", brokers: ["localhost:9092"] });
 export const producer = kafka.producer();
@@ -20,12 +20,13 @@ export const runConsumer = async (attempt = 1) => {
     console.log("Connecting to Kafka consumer...");
     await consumer.connect();
     await consumer.subscribe({ topic: "chat-messages", fromBeginning: true });
-
+    
     await consumer.run({
       eachMessage: async ({ message }:any) => {
+        const io = getSocketInstance()
         const msg = JSON.parse(message.value.toString());
         messageRepository.createMessage(msg)
-        // io.emit("newMessage", msg);
+        io.to(msg.chatId).emit("newMessage", msg);
       },
     });
 
@@ -34,7 +35,7 @@ export const runConsumer = async (attempt = 1) => {
     console.error("Kafka consumer connection failed:", error);
     if (attempt <= 5) {
       console.log(`Retrying Kafka consumer in ${attempt * 2} seconds...`);
-      await consumer.disconnect(); // Prevent duplicate consumers
+      await consumer.disconnect(); 
       setTimeout(() => runConsumer(attempt + 1), attempt * 2000);
     } else {
       console.error("Kafka consumer failed after multiple attempts.");

@@ -7,19 +7,18 @@ import messageRouter from "./routes/messageRoute"
 import { initKafka, runConsumer } from "./utils/kafkaUtil"
 import userRouter from './routes/userRoute'
 import chatRouter from './routes/chatRoute'
-// import { Socket } from "../socket"
+import { initializeSocket } from "./utils/socket"
 
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
+initializeSocket(server)
 app.use(cors());
 app.use(express.json());
 connectDB();
 initKafka();
 runConsumer();
 
-
-// const socket = new Socket(server)
 
 app.use('/message', messageRouter)
 app.use('/chat', chatRouter)
